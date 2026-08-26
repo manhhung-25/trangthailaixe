@@ -84,8 +84,10 @@ class OpenCVHaarFaceDetector(BaseFaceDetector):
             )
 
     def _find_cascade(self, filename):
+        cv2_data = getattr(cv2, "data", None)
+        cv2_haarcascades = getattr(cv2_data, "haarcascades", "") if cv2_data else ""
         candidates = [
-            Path(getattr(cv2.data, "haarcascades", "")) / filename,
+            Path(cv2_haarcascades) / filename,
             Path("/usr/share/opencv4/haarcascades") / filename,
             Path("/usr/share/opencv/haarcascades") / filename,
             Path("/usr/local/share/opencv4/haarcascades") / filename,
