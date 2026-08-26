@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 import cv2
 import numpy as np
 from driver_monitor.core.contracts import FramePacket, FaceObservation
@@ -72,9 +73,29 @@ class MediaPipeFaceDetector(BaseFaceDetector):
 
 class OpenCVHaarFaceDetector(BaseFaceDetector):
     def __init__(self):
-        cascade_dir = cv2.data.haarcascades
-        self.face_cascade = cv2.CascadeClassifier(cascade_dir + "haarcascade_frontalface_default.xml")
-        self.eye_cascade = cv2.CascadeClassifier(cascade_dir + "haarcascade_eye.xml")
+        face_cascade_path = self._find_cascade("haarcascade_frontalface_default.xml")
+        eye_cascade_path = self._find_cascade("haarcascade_eye.xml")
+        self.face_cascade = cv2.CascadeClassifier(str(face_cascade_path))
+        self.eye_cascade = cv2.CascadeClassifier(str(eye_cascade_path))
+
+        if self.face_cascade.empty() or self.eye_cascade.empty():
+            raise RuntimeError(
+                "Khong tim thay OpenCV Haar cascade. Tren Pi cai: sudo apt install python3-opencv opencv-data"
+            )
+
+    def _find_cascade(self, filename):
+        candidates = [
+            Path(getattr(cv2.data, "haarcascades", "")) / filename,
+            Path("/usr/share/opencv4/haarcascades") / filename,
+            Path("/usr/share/opencv/haarcascades") / filename,
+            Path("/usr/local/share/opencv4/haarcascades") / filename,
+        ]
+
+        for path in candidates:
+            if path.exists():
+                return path
+
+        return candidates[0]
 
     def detect(self, packet: FramePacket) -> FaceObservation | None:
         gray = cv2.cvtColor(packet.frame, cv2.COLOR_BGR2GRAY)
