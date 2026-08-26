@@ -368,10 +368,18 @@ def main():
     # Đặt ngưỡng thời gian ngáp = 1.0s, nhắm mắt = 1.2s
     dms_manager = DrowsinessAndDistractionManager(ear_thresh=0.20, mar_thresh=0.60, eye_time_thresh=1.2, yawn_time_thresh=1.0)
 
+    camera_width = int(os.environ.get("DRIVER_MONITOR_CAMERA_WIDTH", "320" if is_raspberry_pi else "640"))
+    camera_height = int(os.environ.get("DRIVER_MONITOR_CAMERA_HEIGHT", "240" if is_raspberry_pi else "480"))
+    camera_fps = int(os.environ.get("DRIVER_MONITOR_CAMERA_FPS", "30"))
+
     cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, camera_width)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, camera_height)
+    cap.set(cv2.CAP_PROP_FPS, camera_fps)
     frame_idx = 0
 
     print("[INFO] Dang chay Dashboard giam sat... Nhan 'v' de test loa, 'c' de Reset Calibrate, 'q' de thoat.")
+    print(f"[INFO] Camera config: {camera_width}x{camera_height}@{camera_fps}fps")
 
     while cap.isOpened():
         ret, frame = cap.read()
