@@ -344,10 +344,19 @@ def main():
         "distracted_time_sec": 2.0,
     }
 
+    face_backend = os.environ.get("DRIVER_MONITOR_FACE_BACKEND", "auto").strip().lower()
     machine = platform.machine().lower()
     is_raspberry_pi = machine in {"armv7l", "aarch64", "arm64"}
-    if is_raspberry_pi:
+
+    if face_backend == "mediapipe":
+        print("[INFO] Ep dung MediaPipe theo DRIVER_MONITOR_FACE_BACKEND=mediapipe.")
+        face_detector = MediaPipeFaceDetector("models/face_landmarker.task")
+    elif face_backend == "opencv":
+        print("[INFO] Ep dung OpenCV Haar theo DRIVER_MONITOR_FACE_BACKEND=opencv.")
+        face_detector = OpenCVHaarFaceDetector()
+    elif is_raspberry_pi:
         print("[INFO] Dang chay tren ARM/Raspberry Pi, dung OpenCV Haar de tranh loi MediaPipe illegal instruction.")
+        print("[INFO] Neu Pi cua ban co MediaPipe tuong thich, chay: DRIVER_MONITOR_FACE_BACKEND=mediapipe python src/driver_monitor/main.py")
         face_detector = OpenCVHaarFaceDetector()
     else:
         face_detector = MediaPipeFaceDetector("models/face_landmarker.task")
