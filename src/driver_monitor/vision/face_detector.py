@@ -112,13 +112,14 @@ class OpenCVHaarFaceDetector(BaseFaceDetector):
         eyes = self.eye_cascade.detectMultiScale(upper_face, scaleFactor=1.1, minNeighbors=5, minSize=(18, 12))
         eyes = sorted(eyes, key=lambda box: box[0])[:2]
 
-        if len(eyes) >= 2:
+        eyes_detected = len(eyes) >= 2
+        if eyes_detected:
             left_eye_box, right_eye_box = eyes[0], eyes[1]
             left_eye = self._eye_landmarks(x, y, left_eye_box, closed=False)
             right_eye = self._eye_landmarks(x, y, right_eye_box, closed=False)
         else:
-            left_eye = self._estimated_eye_landmarks(x, y, w, h, side="left", closed=True)
-            right_eye = self._estimated_eye_landmarks(x, y, w, h, side="right", closed=True)
+            left_eye = []
+            right_eye = []
 
         mouth = self._mouth_landmarks(gray, x, y, w, h)
         nose = (x + w * 0.5, y + h * 0.50)
@@ -130,6 +131,7 @@ class OpenCVHaarFaceDetector(BaseFaceDetector):
                 "right_eye": right_eye,
                 "mouth": mouth,
                 "pose": [nose],
+                "eyes_detected": [(1.0, 1.0)] if eyes_detected else [],
             },
             confidence=0.7,
             provider="opencv_haar",

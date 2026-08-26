@@ -278,7 +278,7 @@ def draw_dashboard(frame, processed, gaze_res, dms_alerts, eye_dur, yawn_dur):
     # 1. BẢNG ĐO EAR (MẮT)
     ear_val = metrics.get("ear", 0.0)
     cv2.putText(canvas, f"Do mo mat (EAR): {ear_val:.2f} ({eye_dur:.1f}s)", (w + 15, 65), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1)
-    ear_color = (0, 0, 255) if ear_val < 0.20 else (0, 255, 0)
+    ear_color = (0, 0, 255) if 0.0 < ear_val < 0.20 else (0, 255, 0)
     cv2.rectangle(canvas, (w + 15, 72), (w + 15 + int(min(ear_val, 0.4)/0.4 * 300), 82), ear_color, -1)
     cv2.rectangle(canvas, (w + 15, 72), (w + 315, 82), (120, 120, 120), 1)
 

@@ -40,7 +40,7 @@ class DriverSafetyPipeline:
             avg_ear = (left_ear + right_ear) / 2.0 if (left_ear and right_ear) else left_ear or right_ear
             metrics_data["ear"] = round(avg_ear, 3)
 
-            if avg_ear < self.config.get("ear_threshold", 0.20):
+            if 0.0 < avg_ear < self.config.get("ear_threshold", 0.20):
                 if self.eye_closed_start is None:
                     self.eye_closed_start = now
                 duration = now - self.eye_closed_start
