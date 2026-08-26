@@ -1,6 +1,7 @@
 import sys
 import os
 import tempfile
+import platform
 from pathlib import Path
 
 SRC_DIR = Path(__file__).resolve().parent.parent
@@ -13,7 +14,7 @@ import subprocess
 import cv2
 import numpy as np
 from driver_monitor.core.contracts import FramePacket
-from driver_monitor.vision.face_detector import MediaPipeFaceDetector
+from driver_monitor.vision.face_detector import MediaPipeFaceDetector, OpenCVHaarFaceDetector
 from driver_monitor.vision.object_detector import DummyYOLOOnnxDetector
 from driver_monitor.vision.pipeline import DriverSafetyPipeline
 from driver_monitor.core.gaze_tracker import HeadPoseAndGazeAnalyzer
@@ -343,7 +344,13 @@ def main():
         "distracted_time_sec": 2.0,
     }
 
-    face_detector = MediaPipeFaceDetector("models/face_landmarker.task")
+    machine = platform.machine().lower()
+    is_raspberry_pi = machine in {"armv7l", "aarch64", "arm64"}
+    if is_raspberry_pi:
+        print("[INFO] Dang chay tren ARM/Raspberry Pi, dung OpenCV Haar de tranh loi MediaPipe illegal instruction.")
+        face_detector = OpenCVHaarFaceDetector()
+    else:
+        face_detector = MediaPipeFaceDetector("models/face_landmarker.task")
     object_detector = DummyYOLOOnnxDetector()
     pipeline = DriverSafetyPipeline(face_detector, object_detector, config)
     gaze_analyzer = HeadPoseAndGazeAnalyzer()
